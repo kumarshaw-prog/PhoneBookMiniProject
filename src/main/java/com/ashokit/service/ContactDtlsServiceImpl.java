@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ashokit.entity.ContactDtlsEntity;
+import com.ashokit.exceptions.PhoneBookAppException;
 import com.ashokit.modal.Contact;
 import com.ashokit.repository.ContactDtlsRepository;
 
@@ -21,28 +22,48 @@ public class ContactDtlsServiceImpl implements ContactDtlsService {
 
 	@Override
 	public boolean saveContact(Contact c) {
-		ContactDtlsEntity entity=new ContactDtlsEntity();
-		BeanUtils.copyProperties(c, entity);
-		ContactDtlsEntity saveEntity=contactdtlsRepository.save(entity);
+		boolean  isSaved=false;
 		
-		return saveEntity.getContactId()!=null;
+		try {
+			
+			ContactDtlsEntity entity=new ContactDtlsEntity();
+			BeanUtils.copyProperties(c, entity);
+			ContactDtlsEntity saveEntity=contactdtlsRepository.save(entity);
+//			if(saveEntity.getContactId() !=null) {
+//				isSaved=true;
+//			}
+			
+			if ( saveEntity != null ) {
+				isSaved=true;	
+			}
+			
+			
+		} catch (Exception e) {
+			throw new PhoneBookAppException("saved Failed");
+		}
+	return isSaved;
 	}
 
 	@Override
 	public List<Contact> getAllContact() {
-		List<ContactDtlsEntity> entity=contactdtlsRepository.findAll();
-		List<Contact> contact=new ArrayList<Contact>();
-		//Contact contacts=new Contact();
-		for(ContactDtlsEntity e:entity) {
-			Contact contacts=new Contact();
-			BeanUtils.copyProperties(e, contacts);
-			/*contacts.setContactName(e.getContactName());
-			contacts.setContactEmail(e.getContactEmail());
-			contacts.setContactNumber(e.getContactNumber());*/
-			contact.add(contacts);
+		List<Contact> listData=null;
+		
+		try {
+			//int i=10/0;
+			List<ContactDtlsEntity> entity=contactdtlsRepository.findAll();
+			List<Contact> contact=new ArrayList<>();
+			for(ContactDtlsEntity e:entity) {
+				Contact contacts=new Contact();
+				BeanUtils.copyProperties(e, contacts);
+				contact.add(contacts);
+			}
+			
+			return contact;
+		} catch (Exception e) {
+			throw new PhoneBookAppException("saved Failed");
 		}
 		
-		return contact;
+		//return contact;
 	}
 
 	@Override
